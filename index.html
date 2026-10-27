@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>XV Anos · Isabelly Collete</title>
+<title>XV Anos · Isabelly Colette</title>
 <meta name="description" content="30 de janeiro de 2027 · 21h · Toque para abrir o convite.">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="XV Anos · Isabelly Collete">
+<meta property="og:site_name" content="XV Anos · Isabelly Colette">
 <meta property="og:locale" content="pt_BR">
-<meta property="og:url" content="https://cerimonialconvite.github.io/xv-isabelly-collete/">
-<meta property="og:title" content="XV Anos · Isabelly Collete">
+<meta property="og:url" content="https://cerimonialconvite.github.io/xv-isabelly-colette/">
+<meta property="og:title" content="XV Anos · Isabelly Colette">
 <meta property="og:description" content="30 de janeiro de 2027 · 21h · Toque para abrir o convite.">
-<meta property="og:image" content="https://cerimonialconvite.github.io/xv-isabelly-collete/img/og.jpg">
-<meta property="og:image:secure_url" content="https://cerimonialconvite.github.io/xv-isabelly-collete/img/og.jpg">
+<meta property="og:image" content="https://cerimonialconvite.github.io/xv-isabelly-colette/img/og.jpg">
+<meta property="og:image:secure_url" content="https://cerimonialconvite.github.io/xv-isabelly-colette/img/og.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -119,7 +119,7 @@
 <main id="convite" hidden>
   <div class="faixa" id="f-abertura" data-y="0" data-h="880" aria-label="Monograma IC, XV Anos. Há sonhos que o coração guarda até o dia de se tornarem realidade."></div>
   <div class="faixa" id="f-foto" data-y="880" data-h="1110" aria-label="Foto da Isabelly"></div>
-  <div class="faixa" id="f-nome" data-y="1990" data-h="1210" aria-label="Isabelly Collete, 15 anos. 30 de janeiro de 2027 às 21 horas."></div>
+  <div class="faixa" id="f-nome" data-y="1990" data-h="1210" aria-label="Isabelly Colette, 15 anos. 30 de janeiro de 2027 às 21 horas."></div>
   <div class="faixa" id="f-contagem" data-y="3200" data-h="1040">
     <section class="contagem" aria-label="Contagem regressiva">
       <canvas class="estrelas" width="1080" height="764"></canvas>
@@ -137,8 +137,8 @@
       <img class="buque" src="img/buque.png" alt="">
     </section>
   </div>
-  <div class="faixa" id="f-dress" data-y="4240" data-h="910" aria-label="Dress code: esporte fino."></div>
-  <div class="faixa" id="f-local" data-y="5150" data-h="1140" aria-label="Localização: Cerimonial Villas, R. Itaeté, 21 - Pitangueiras, Lauro de Freitas - BA, 42701-360."></div>
+  <div class="faixa" id="f-dress" data-y="4240" data-h="975" aria-label="Dress code: esporte fino. Tons de azul-marinho e prata reservados para a debutante."></div>
+  <div class="faixa" id="f-local" data-y="5215" data-h="1075" aria-label="Localização: Cerimonial Villas, R. Itaeté, 21 - Pitangueiras, Lauro de Freitas - BA, 42701-360."></div>
   <div class="faixa" id="f-icones" data-y="6290" data-h="650" aria-label="Clique nos ícones abaixo para interagir.">
     <a class="ponto" id="p-mapa" style="left:37.04%;top:39.4%" target="_blank" rel="noopener" aria-label="Abrir localização no mapa"
        href="https://www.google.com/maps/search/?api=1&query=Cerimonial%20Villas%2C%20R.%20Itaet%C3%A9%2C%2021%20-%20Pitangueiras%2C%20Lauro%20de%20Freitas%20-%20BA%2C%2042701-360"></a>
@@ -150,7 +150,7 @@
 <script>
 (function(){
   /* ===== AJUSTES ===== */
-  var LINK_CONFIRMACAO = '';                       // cole aqui o link de confirmação de presença
+  var LINK_CONFIRMACAO = 'https://docs.google.com/spreadsheets/d/1fOBe2WbZoHELlW6BDOIMcx_IAgHSP_4gQLHrIctB1ow/edit?usp=sharing';                       // cole aqui o link de confirmação de presença
   var DATA_EVENTO = '2027-01-30T21:00:00-03:00';   // 30/01/2027 às 21h
 
   var capa=document.getElementById('capa'), anim=document.getElementById('animacao'),
@@ -172,14 +172,27 @@
     if(p&&p.then) p.then(function(){ som.classList.add('ativo'); fadeIn(); }).catch(function(){ som.classList.add('ativo','mudo'); });
     else som.classList.add('ativo');
   }
+  var pausadoPeloUsuario=false, saiuPorLink=false;
   som.addEventListener('click',function(){
-    if(musica.paused){ musica.play(); som.classList.remove('mudo'); som.setAttribute('aria-label','Pausar música'); }
-    else { musica.pause(); som.classList.add('mudo'); som.setAttribute('aria-label','Tocar música'); }
+    if(musica.paused){ pausadoPeloUsuario=false; musica.play(); som.classList.remove('mudo'); som.setAttribute('aria-label','Pausar música'); }
+    else { pausadoPeloUsuario=true; musica.pause(); som.classList.add('mudo'); som.setAttribute('aria-label','Tocar música'); }
   });
+  /* mapa e confirmação: a música continua tocando; se o celular pausar, volta sozinha ao retornar */
+  document.querySelectorAll('.ponto').forEach(function(p){ p.addEventListener('click',function(){ if(p.getAttribute('href')!=='#') saiuPorLink=true; }); });
+  function retomar(){
+    if(!aberto||pausadoPeloUsuario||!musica.paused) return;
+    var p=musica.play();
+    if(p&&p.catch) p.catch(function(){
+      var umToque=function(){ document.removeEventListener('pointerdown',umToque,true); if(!pausadoPeloUsuario) musica.play(); };
+      document.addEventListener('pointerdown',umToque,true);
+    });
+  }
   document.addEventListener('visibilitychange',function(){
-    if(document.hidden && !musica.paused){ musica.pause(); musica.dataset.retomar='1'; }
-    else if(!document.hidden && musica.dataset.retomar){ musica.play(); delete musica.dataset.retomar; }
+    if(document.hidden){ if(!saiuPorLink && !musica.paused) musica.pause(); }
+    else { saiuPorLink=false; retomar(); }
   });
+  window.addEventListener('pageshow',retomar);
+  window.addEventListener('focus',function(){ saiuPorLink=false; retomar(); });
 
   /* ---------- abertura: envelope + clarão ---------- */
   function clarear(){
@@ -219,7 +232,7 @@
   // [nome, x, y, w, h] em px da arte de 1080
   var C={frase:[90,630,900,185],nome:[40,2045,1000,260],quinze:[380,2335,320,305],anos:[360,2655,340,100],data:[190,2860,700,130],orn:[320,3020,440,65],
          dress:[170,4262,740,196],esporte:[390,4495,300,45],local:[220,5240,640,180],villas:[340,5488,400,42],end:[250,5545,580,83],
-         clique:[190,6330,700,68],rot1:[290,6660,220,68],rot2:[570,6660,220,68],ico1:[310,6456,180,180],ico2:[587,6456,180,180]};
+         clique:[190,6330,700,68],paleta:[280,4555,520,85],rot1:[290,6660,220,68],rot2:[570,6660,220,68],ico1:[310,6456,180,180],ico2:[587,6456,180,180]};
   // efeito, início (ms), duração (ms)
   var ROTEIRO={
     'f-abertura':{base:'aquarela',el:[['frase','escrita',1500,2600]],fim:function(f){ reflexo(f,'img/m-mono.png',[360,230,360,345],0); }},
@@ -227,7 +240,7 @@
     'f-nome':{base:'aquarela',el:[['nome','escrita',500,2800],['quinze','zoom',2900,1300],['anos','fade',3700,1000],['data','fade',4300,1100],['orn','escrita',5000,1300]],
               fim:function(f){ reflexo(f,'img/t-quinze.png',C.quinze,1.5); }},
     'f-contagem':{base:'aquarela',el:[],fim:function(f){ f.querySelector('.contagem').classList.add('revelada'); estrelas(f); }},
-    'f-dress':{base:'aquarela',el:[['dress','escrita',300,2200],['esporte','fade',2200,1000]]},
+    'f-dress':{base:'aquarela',el:[['dress','escrita',300,2200],['esporte','fade',2200,1000],['paleta','fade',2800,1200]]},
     'f-local':{base:'aquarela',el:[['local','escrita',200,2200],['villas','fade',2100,900],['end','fade',2500,1000]]},
     'f-icones':{base:'fade',el:[['clique','escrita',100,1800],['ico1','pop',1100,800],['ico2','pop',1350,800],['rot1','fade',1700,800],['rot2','fade',1850,800]],
                 cedo:function(f){ setTimeout(function(){ f.querySelectorAll('.ponto').forEach(function(p){ p.classList.add('ativo'); }); },2400); }}
