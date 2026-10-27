@@ -93,6 +93,20 @@
   #som.ativo{display:flex}
   #som svg{width:22px;height:22px;fill:none;stroke:var(--marinho);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
   #som .off{display:none} #som.mudo .on{display:none} #som.mudo .off{display:block}
+  /* confirmação dentro da página */
+  #rsvpBox{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;background:rgba(8,30,52,.45);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .35s ease}
+  #rsvpBox.aberto{opacity:1;pointer-events:auto}
+  .rsvp-folha{position:relative;width:100%;max-width:540px;height:min(92vh,92dvh);background:#f6f9fb;border-radius:22px 22px 0 0;box-shadow:0 -10px 40px rgba(8,30,52,.3);display:flex;flex-direction:column;transform:translateY(100%);transition:transform .45s cubic-bezier(.2,.8,.2,1);overflow:hidden}
+  #rsvpBox.aberto .rsvp-folha{transform:none}
+  .rsvp-topo{flex:none;display:flex;align-items:center;justify-content:space-between;padding:14px 14px 12px 22px;background:var(--marinho);color:#fff}
+  .rsvp-topo h3{font:400 15px "Cinzel",serif;letter-spacing:.12em}
+  .rsvp-fechar{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.4);background:transparent;color:#fff;font:300 24px/1 Georgia,serif;cursor:pointer}
+  .rsvp-corpo{position:relative;flex:1;background:#f6f9fb}
+  .rsvp-corpo iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .rsvp-carregando{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:400 13px "Cinzel",serif;letter-spacing:.12em;color:var(--marinho)}
+  .rsvp-rodape{flex:none;padding:10px 16px calc(10px + env(safe-area-inset-bottom));text-align:center;font:400 12px Georgia,serif;color:#5a6b7b;background:#eef3f7}
+  .rsvp-rodape a{color:var(--marinho)}
+  @media (min-width:600px){ #rsvpBox{align-items:center} .rsvp-folha{border-radius:18px;height:min(86vh,820px)} }
 </style>
 </head>
 <body>
@@ -114,6 +128,13 @@
   <svg class="on" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>
   <svg class="off" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 10l4 4M21 10l-4 4"/></svg>
 </button>
+<div id="rsvpBox" role="dialog" aria-modal="true" aria-label="Confirmação de presença">
+  <div class="rsvp-folha">
+    <div class="rsvp-topo"><h3>Confirme sua presença</h3><button class="rsvp-fechar" id="rsvpFechar" type="button" aria-label="Fechar e voltar ao convite">×</button></div>
+    <div class="rsvp-corpo"><div class="rsvp-carregando">Carregando…</div></div>
+    <div class="rsvp-rodape">Não carregou? <a id="rsvpExterno" href="#" target="_blank" rel="noopener">Abrir o formulário</a></div>
+  </div>
+</div>
 <div class="aviso" id="aviso">Confirmação disponível em breve</div>
 
 <main id="convite" hidden>
@@ -150,7 +171,7 @@
 <script>
 (function(){
   /* ===== AJUSTES ===== */
-  var LINK_CONFIRMACAO = 'https://docs.google.com/spreadsheets/d/1fOBe2WbZoHELlW6BDOIMcx_IAgHSP_4gQLHrIctB1ow/edit?usp=sharing';                       // cole aqui o link de confirmação de presença
+  var LINK_CONFIRMACAO = 'https://docs.google.com/forms/d/e/1FAIpQLSeTlyYHvZEEszCQUoXiz5CmYDlWIr8qFlFKtVf47P1I9TOUqA/viewform?usp=sharing';                       // cole aqui o link de confirmação de presença
   var DATA_EVENTO = '2027-01-30T21:00:00-03:00';   // 30/01/2027 às 21h
 
   var capa=document.getElementById('capa'), anim=document.getElementById('animacao'),
@@ -162,7 +183,25 @@
 
   /* ---------- confirmação ---------- */
   var rsvp=document.getElementById('p-rsvp'), aviso=document.getElementById('aviso');
-  if(LINK_CONFIRMACAO){ rsvp.href=LINK_CONFIRMACAO; }
+  var rsvpBox=document.getElementById('rsvpBox'), rsvpCorpo=rsvpBox.querySelector('.rsvp-corpo'), rsvpCarregado=false;
+  function linkEmbutido(u){ return u.indexOf('docs.google.com/forms')>-1 ? u.replace(/([?&])usp=[^&]*/,'$1embedded=true') : u; }
+  function abrirConfirmacao(){
+    if(!rsvpCarregado){
+      var f=document.createElement('iframe'); f.src=linkEmbutido(LINK_CONFIRMACAO); f.title='Formulário de confirmação de presença';
+      f.addEventListener('load',function(){ var c=rsvpCorpo.querySelector('.rsvp-carregando'); if(c) c.remove(); });
+      rsvpCorpo.appendChild(f); rsvpCarregado=true;
+    }
+    rsvpBox.classList.add('aberto'); document.documentElement.style.overflow='hidden';
+  }
+  function fecharConfirmacao(){ rsvpBox.classList.remove('aberto'); document.documentElement.style.overflow=''; }
+  document.getElementById('rsvpFechar').addEventListener('click',fecharConfirmacao);
+  rsvpBox.addEventListener('click',function(e){ if(e.target===rsvpBox) fecharConfirmacao(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape' && rsvpBox.classList.contains('aberto')) fecharConfirmacao(); });
+  if(LINK_CONFIRMACAO){
+    rsvp.href=LINK_CONFIRMACAO; document.getElementById('rsvpExterno').href=LINK_CONFIRMACAO;
+    rsvp.removeAttribute('target');
+    rsvp.addEventListener('click',function(e){ e.preventDefault(); e.stopImmediatePropagation(); abrirConfirmacao(); });
+  }
   else rsvp.addEventListener('click',function(e){ e.preventDefault(); aviso.classList.add('mostra'); setTimeout(function(){ aviso.classList.remove('mostra'); },2600); });
 
   /* ---------- música ---------- */
